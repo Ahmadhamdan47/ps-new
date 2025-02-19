@@ -37,41 +37,6 @@ const DrugRegistryForm = () => {
     drugNames,
   } = useStepperContext();
 
-  // ✅ State to store selected Manufacturer ID
-  const [selectedManufacturerId, setSelectedManufacturerId] = useState("");
-
-  const handleSelectChange = (e) => {
-  const { name, value } = e.target;
-
-  if (name === "Manufacturer") {
-    const selectedManufacturer = inputOptions.Manufacturer
-      ? inputOptions.Manufacturer.find((m) => String(m.id) === String(value))
-      : null;
-
-    console.log("Selected Manufacturer ID:", value);
-    console.log("Selected Manufacturer Object:", selectedManufacturer);
-
-    // If a manufacturer is selected, set both the ID and name
-    if (selectedManufacturer) {
-      setFormData((prevData) => ({
-        ...prevData,
-        ManufacturerId: selectedManufacturer.id,
-        Manufacturer: selectedManufacturer.name,
-      }));
-    } else {
-      // Clear manufacturer fields if nothing is selected
-      setFormData((prevData) => ({
-        ...prevData,
-        ManufacturerId: "",
-        Manufacturer: "",
-      }));
-    }
-  } else {
-    handleInputChange(e);
-  }
-};
-
-
    const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -88,7 +53,61 @@ const DrugRegistryForm = () => {
     }
   };
 
-  
+  // ✅ State to store selected Manufacturer ID
+  const [selectedManufacturerId, setSelectedManufacturerId] = useState("");
+  const [selectedResponsiblePartyId, setSelectedResponsiblePartyId] = useState("");
+
+  // ✅ Updated function to handle input changes
+  const handleSelectChange = (e) => {
+    const { name, value } = e.target;
+
+    if (name === "Manufacturer") {
+      setSelectedManufacturerId(value); // ✅ Save the ID
+
+      const selectedManufacturer = inputOptions.Manufacturer.find((m) => m.id == value);
+
+      console.log("Selected Manufacturer ID:", value);
+      console.log("Selected Manufacturer Object:", selectedManufacturer);
+
+      handleInputChange({
+        target: {
+          name: "ManufacturerId",
+          value: selectedManufacturer ? selectedManufacturer.id : "",
+        },
+      });
+
+      handleInputChange({
+        target: {
+          name: "Manufacturer",
+          value: selectedManufacturer ? selectedManufacturer.name : "",
+        },
+      });
+    } else if (name === "ResponsibleParty") {
+      setSelectedResponsiblePartyId(value); // ✅ Save the ID
+
+      const selectedResponsibleParty = inputOptions.ResponsibleParty.find((m) => m.id == value);
+
+      console.log("Selected Responsible Party ID:", value);
+      console.log("Selected Responsible Party Object:", selectedResponsibleParty);
+
+      handleInputChange({
+        target: {
+          name: "ManufacturerId",
+          value: selectedResponsibleParty ? selectedResponsibleParty.id : "",
+        },
+      });
+
+      handleInputChange({
+        target: {
+          name: "ResponsibleParty",
+          value: selectedResponsibleParty ? selectedResponsibleParty.name : "",
+        },
+      });
+    }
+     else {
+      handleInputChange(e);
+    }
+  };
 
   return (
     <div className="col-span-1 flex flex-col w-full h-full sm:col-span-1 text-black-text dark:text-white-text justify-center p-6">
@@ -128,31 +147,37 @@ const DrugRegistryForm = () => {
       </div>
     </div>
     <select
-      name={inputName}
-      value={inputName === "Manufacturer" ? formData.ManufacturerId || "" : formData[inputName] || ""}
-      onChange={handleSelectChange}
-      className="mt-1 w-full cursor-pointer rounded-full border border-[#00a65100] dark:border-black-border bg-white-bg dark:bg-black-input px-4 py-2 font-normal shadow-md dark:shadow-black-shadow outline-none focus:border-green-pri focus:outline-none focus:ring-2 focus:ring-green-pri dark:focus:ring-2 dark:focus:ring-green-pri"
-    >
-      <option disabled value="">
-        Select an option
+  name={inputName}
+  value={
+    inputName === "Manufacturer"
+      ? formData.ManufacturerId || ""
+      : inputName === "ResponsibleParty"
+      ? formData.ResponsiblePartyId || "" // Handle ResponsibleParty similarly
+      : formData[inputName] || ""
+  }
+  onChange={handleInputChange}
+  className="mt-1 w-full cursor-pointer rounded-full border border-[#00a65100] dark:border-black-border bg-white-bg dark:bg-black-input px-4 py-2 font-normal shadow-md dark:shadow-black-shadow outline-none focus:border-green-pri focus:outline-none focus:ring-2 focus:ring-green-pri dark:focus:ring-2 dark:focus:ring-green-pri"
+>
+  <option disabled value="">
+    Select an option
+  </option>
+  {inputName === "Manufacturer" || inputName === "ResponsibleParty" ? (
+    inputOptions[inputName].map((option) => (
+      <option key={option.id} value={option.id}>
+        {option.name}
       </option>
-      {inputName === "Manufacturer" ? (
-        inputOptions[inputName].map((option) => (
-          <option key={option.id} value={option.id}>
-            {option.name}
-          </option>
-        ))
-      ) : (
-        inputOptions[inputName].map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))
-      )}
-    </select>
- 
-  </div>
-))}
+    ))
+  ) : (
+    inputOptions[inputName].map((option) => (
+      <option key={option} value={option}>
+        {option}
+      </option>
+    ))
+  )}
+</select>
+
+      </div>
+    ))}
 
 
         {/* <div className="input-container relative">

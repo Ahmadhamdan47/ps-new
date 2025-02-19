@@ -313,18 +313,15 @@ export const StepperProvider = ({ children, initialValue }) => {
     "Brand",
     "Generic",
   ],
-  ResponsibleParty: [
-    "Leo Pharma A/S",
-    "Bayer Hispania",
-    "Abbvie Ltd",
-    "Ferring GmbH",
-  ],
+  ResponsibleParty: [],
   ResponsiblePartyCountry: ["France", "Spain", "USA", "Sweden", "Lebanon"],
   Manufacturer: [], // Will now store { id, name } objects
   CargoShippingTerms: ["CIF", "FOB"],
 });
 
-const [manufacturers, setManufacturers] = useState([]);
+
+const [responsibleParty, setResponsibleParty] = useState([]);
+const [manufacturers, setManufacturers] = useState([]);  
 const [selectedManufacturerId, setSelectedManufacturerId] = useState("");
 const [selectedManufacturerName, setSelectedManufacturerName] = useState("");
 const [selectedManufacturingCountry, setSelectedManufacturingCountry] = useState("");
@@ -361,26 +358,41 @@ useEffect(() => {
     }
   };
 
+  const fetchResponsibleParties = async () => {
+    try {
+      const response = await fetch("/api/responsibleParty/");
+      const data = await response.json();
+
+      console.log("API Response:", data); // Debugging step
+
+      if (!Array.isArray(data)) {
+        throw new Error("Invalid data format: Expected an array");
+      }
+
+      // Extract Manufacturer IDs, Names, and Countries
+      const responsiblePartyList = data.map((m) => ({
+        id: m.ResponsiblePartyId, // Assuming your API returns an "id" field
+        name: m.ResponsiblePartyName,
+        country: m.Country,
+      }));
+      console.log('reslist',responsiblePartyList );
+
+      // Update state with manufacturers as objects
+      setResponsibleParty(responsiblePartyList);
+      setInputOptions((prevOptions) => ({
+        ...prevOptions,
+        ResponsibleParty: responsiblePartyList, // Store objects instead of names
+      }));
+    } catch (error) {
+      console.error("Failed to fetch Responsible Parties:", error);
+    }
+  };
+
+  fetchResponsibleParties();
   fetchManufacturers();
 }, []);
 
 
-
-const handleManufacturerChange = (e) => {
-  const selectedId = Number(e.target.value); // Convert to number if needed
-  setSelectedManufacturerId(selectedId);
-
-  // Find the manufacturer object based on the selected ID
-  const manufacturer = manufacturers.find((m) => m.id === selectedId);
-  
-  if (manufacturer) {
-    setSelectedManufacturerName(manufacturer.name);
-    setSelectedManufacturingCountry(manufacturer.country);
-  } else {
-    setSelectedManufacturerName("");
-    setSelectedManufacturingCountry("");
-  }
-};
 
 
 const handleInputChange = (e) => {
@@ -394,7 +406,17 @@ const handleInputChange = (e) => {
       Manufacturer: selectedManufacturer ? selectedManufacturer.name : "", // Store Name for display
       ManufacturerId: selectedManufacturer ? selectedManufacturer.id : "", // Store ID separately
     }));
-  } else {
+  } else if (name === "ResponsibleParty") {
+    const selectedResponsibleParty = inputOptions.ResponsibleParty.find((m) => m.id == value); // Ensure type match
+
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      ResponsibleParty: selectedResponsibleParty ? selectedResponsibleParty.name : "", // Store Name for display
+      ResponsiblePartyId: selectedResponsibleParty ? selectedResponsibleParty.id : "", // Store ID separately
+    }));
+  }
+  
+  else {
     setFormData((prevFormData) => ({
       ...prevFormData,
       [name]: value,
