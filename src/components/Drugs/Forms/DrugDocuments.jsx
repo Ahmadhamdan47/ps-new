@@ -37,7 +37,7 @@ const DrugDocuments = (props) => {
   return (
     <div className="image-uploader-cont flex flex-col justify-items-center items-center text-gray-700 dark:text-white-text">
       <h1 className="py-6 text-center text-xl sm:py-10 pb-10 font-medium">
-        3- Medicine Documents
+        4- Medicine Documents
       </h1>
       <div className="grid  grid-cols-2 justify-items-center gap-8 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 rounded-2xl border-2 border-dashed dark:border-[#474747] p-10">
         {drugImagesList.map((drugImages, index) => (

@@ -308,29 +308,102 @@ export const StepperProvider = ({ children, initialValue }) => {
 
   const getTitle = (inputName) => `Add new ${addSpacesToInputName(inputName)}`;
 
-  const inputOptions = {
-    ProductType: [
-      "Brand",
-      "Generic",
-      "Biological: Bio - Human",
-      "Biological: Bio - Similar",
-    ],
-    ResponsibleParty: [
-      "Leo Pharma A/S",
-      "Bayer Hispania",
-      "Abbvie Ltd",
-      "Ferring GmbH",
-    ],
-    ResponsiblePartyCountry: ["France", "Spain", "USA", "Sweden", "Lebanon"],
-    Manufacturer: [
-      "Leo Pharma A/S",
-      "Bayer Hispania",
-      "Abbvie Ltd",
-      "Ferring GmbH",
-    ],
-    ManufacturingCountry: ["France", "Spain", "USA", "Sweden", "Lebanon"],
-    CargoShippingTerms: ["CIF", "FOB"],
+  const [inputOptions, setInputOptions] = useState({
+  ProductType: [
+    "Brand",
+    "Generic",
+  ],
+  ResponsibleParty: [
+    "Leo Pharma A/S",
+    "Bayer Hispania",
+    "Abbvie Ltd",
+    "Ferring GmbH",
+  ],
+  ResponsiblePartyCountry: ["France", "Spain", "USA", "Sweden", "Lebanon"],
+  Manufacturer: [], // Will now store { id, name } objects
+  CargoShippingTerms: ["CIF", "FOB"],
+});
+
+const [manufacturers, setManufacturers] = useState([]);
+const [selectedManufacturerId, setSelectedManufacturerId] = useState("");
+const [selectedManufacturerName, setSelectedManufacturerName] = useState("");
+const [selectedManufacturingCountry, setSelectedManufacturingCountry] = useState("");
+
+
+
+useEffect(() => {
+  const fetchManufacturers = async () => {
+    try {
+      const response = await fetch("/api/manufacturer/");
+      const data = await response.json();
+
+      console.log("API Response:", data); // Debugging step
+
+      if (!Array.isArray(data)) {
+        throw new Error("Invalid data format: Expected an array");
+      }
+
+      // Extract Manufacturer IDs, Names, and Countries
+      const manufacturerList = data.map((m) => ({
+        id: m.ManufacturerId, // Assuming your API returns an "id" field
+        name: m.ManufacturerName,
+        country: m.Country,
+      }));
+
+      // Update state with manufacturers as objects
+      setManufacturers(manufacturerList);
+      setInputOptions((prevOptions) => ({
+        ...prevOptions,
+        Manufacturer: manufacturerList, // Store objects instead of names
+      }));
+    } catch (error) {
+      console.error("Failed to fetch manufacturers:", error);
+    }
   };
+
+  fetchManufacturers();
+}, []);
+
+
+
+const handleManufacturerChange = (e) => {
+  const selectedId = Number(e.target.value); // Convert to number if needed
+  setSelectedManufacturerId(selectedId);
+
+  // Find the manufacturer object based on the selected ID
+  const manufacturer = manufacturers.find((m) => m.id === selectedId);
+  
+  if (manufacturer) {
+    setSelectedManufacturerName(manufacturer.name);
+    setSelectedManufacturingCountry(manufacturer.country);
+  } else {
+    setSelectedManufacturerName("");
+    setSelectedManufacturingCountry("");
+  }
+};
+
+
+const handleInputChange = (e) => {
+  const { name, value } = e.target;
+
+  if (name === "Manufacturer") {
+    const selectedManufacturer = inputOptions.Manufacturer.find((m) => m.id == value); // Ensure type match
+
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      Manufacturer: selectedManufacturer ? selectedManufacturer.name : "", // Store Name for display
+      ManufacturerId: selectedManufacturer ? selectedManufacturer.id : "", // Store ID separately
+    }));
+  } else {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: value,
+    }));
+  }
+};
+
+
+
 
   function addSpacesToInputName(inputName) {
     // Convert camelCase or PascalCase to readable format
@@ -358,14 +431,7 @@ export const StepperProvider = ({ children, initialValue }) => {
     return "";
   }
 
-  // Function to handle input change in forms
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      [name]: value,
-    }));
-  };
+  
 
   // Function to handle input change in forms
   const handleCheckBoxChange = (inputName, checked) => {
@@ -385,30 +451,21 @@ export const StepperProvider = ({ children, initialValue }) => {
 
   // Function to handle next step or submit
   const handleNextOrSubmit = () => {
-    console.log("Handling next step or submit...");
-    const isLastStep = currentStep === forms.length - 1;
-    if (isLastStep) {
-      console.log("Submitting form data:", formData);
-      fetch("http://localhost:5000/drugs/add", {
+      console.log("Final Form Data Before Submission:", JSON.stringify(formData, null, 2));
+      fetch("/api/drugs/add", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       })
-        .then((response) => {
-          if (response.ok) {
-            console.log("Form submitted successfully");
-          } else {
-            console.error("Failed to submit form data");
-          }
-        })
-        .catch((error) => {
-          console.error("Error submitting form data:", error);
+      .then((response) => {
+        console.log("Response Status:", response.status);
+        return response.json().then((data) => {
+          console.log("Server Response:", data);
         });
-    } else {
-      nextStep();
-    }
+      })
+      .catch((error) => console.error("Error submitting form data:", error));
   };
 
   const stepperContextValue = {

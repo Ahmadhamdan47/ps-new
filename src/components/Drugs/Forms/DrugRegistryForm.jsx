@@ -1,7 +1,8 @@
 import "./styles.css";
 import DatePicker from "../../../components/DatePicker";
 import { useStepperContext } from "../../Drugs/StepperContext";
-import React from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 import TextField from "@mui/material/TextField";
 
@@ -36,6 +37,59 @@ const DrugRegistryForm = () => {
     drugNames,
   } = useStepperContext();
 
+  // ✅ State to store selected Manufacturer ID
+  const [selectedManufacturerId, setSelectedManufacturerId] = useState("");
+
+  const handleSelectChange = (e) => {
+  const { name, value } = e.target;
+
+  if (name === "Manufacturer") {
+    const selectedManufacturer = inputOptions.Manufacturer
+      ? inputOptions.Manufacturer.find((m) => String(m.id) === String(value))
+      : null;
+
+    console.log("Selected Manufacturer ID:", value);
+    console.log("Selected Manufacturer Object:", selectedManufacturer);
+
+    // If a manufacturer is selected, set both the ID and name
+    if (selectedManufacturer) {
+      setFormData((prevData) => ({
+        ...prevData,
+        ManufacturerId: selectedManufacturer.id,
+        Manufacturer: selectedManufacturer.name,
+      }));
+    } else {
+      // Clear manufacturer fields if nothing is selected
+      setFormData((prevData) => ({
+        ...prevData,
+        ManufacturerId: "",
+        Manufacturer: "",
+      }));
+    }
+  } else {
+    handleInputChange(e);
+  }
+};
+
+
+   const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    try {
+      const response = await axios.post("https://apiv2.medleb.org/drugs/add", formData, {
+        headers: { "Content-Type": "application/json" },
+      });
+
+      alert("Drug added successfully!");
+      console.log(response.data);
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert("Failed to add drug.");
+    }
+  };
+
+  
+
   return (
     <div className="col-span-1 flex flex-col w-full h-full sm:col-span-1 text-black-text dark:text-white-text justify-center p-6">
       <h1 className=" text-center text-[1.375rem] xs:text-xl font-medium">
@@ -44,52 +98,62 @@ const DrugRegistryForm = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 md:gap-16 pt-6">
         {Object.keys(inputOptions).map((inputName) => (
-          <div key={inputName} className="input-container relative">
-            <div className="label-btn-container flex justify-between items-center">
-              <label
-                htmlFor={inputName}
-                className="labels text-md block text-left"
-              >
-                {addSpacesToInputName(inputName)}
-              </label>
-              <div className="btns-cont flex">
-                <button
-                  onClick={() => openAddModal(inputName)}
-                  type="button"
-                  className="rounded-xl bg-transparent p-2 text-green-pri focus:border-[#00a651] focus:outline-none focus:ring-1"
-                >
-                  Add
-                </button>
-                {formData[inputName] && (
-                  <button
-                    onClick={() =>
-                      openEditModal(inputName, formData[inputName])
-                    }
-                    type="button"
-                    className="rounded-xl bg-transparent p-2 text-green-pri focus:border-[#00a651] focus:outline-none focus:ring-1"
-                  >
-                    Edit
-                  </button>
-                )}
-              </div>
-            </div>
-            <select
-              name={inputName}
-              value={formData[inputName] || ""}
-              onChange={(e) => handleInputChange(e)}
-              className="mt-1 w-full cursor-pointer rounded-full border border-[#00a65100] dark:border-black-border bg-white-bg dark:bg-black-input px-4 py-2 font-normal shadow-md dark:shadow-black-shadow outline-none focus:border-green-pri focus:outline-none focus:ring-2 focus:ring-green-pri dark:focus:ring-2 dark:focus:ring-green-pri"
-            >
-              <option disabled value="">
-                Select an option
-              </option>
-              {inputOptions[inputName].map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </div>
-        ))}
+  <div key={inputName} className="input-container relative">
+    <div className="label-btn-container flex justify-between items-center">
+      <label
+        htmlFor={inputName}
+        className="labels text-md block text-left"
+      >
+        {addSpacesToInputName(inputName)}
+      </label>
+      <div className="btns-cont flex">
+        <button
+          onClick={() => openAddModal(inputName)}
+          type="button"
+          className="rounded-xl bg-transparent p-2 text-green-pri focus:border-[#00a651] focus:outline-none focus:ring-1"
+        >
+          Add
+        </button>
+        {formData[inputName] && (
+          <button
+            onClick={() =>
+              openEditModal(inputName, formData[inputName])
+            }
+            type="button"
+            className="rounded-xl bg-transparent p-2 text-green-pri focus:border-[#00a651] focus:outline-none focus:ring-1"
+          >
+            Edit
+          </button>
+        )}
+      </div>
+    </div>
+    <select
+      name={inputName}
+      value={inputName === "Manufacturer" ? formData.ManufacturerId || "" : formData[inputName] || ""}
+      onChange={handleSelectChange}
+      className="mt-1 w-full cursor-pointer rounded-full border border-[#00a65100] dark:border-black-border bg-white-bg dark:bg-black-input px-4 py-2 font-normal shadow-md dark:shadow-black-shadow outline-none focus:border-green-pri focus:outline-none focus:ring-2 focus:ring-green-pri dark:focus:ring-2 dark:focus:ring-green-pri"
+    >
+      <option disabled value="">
+        Select an option
+      </option>
+      {inputName === "Manufacturer" ? (
+        inputOptions[inputName].map((option) => (
+          <option key={option.id} value={option.id}>
+            {option.name}
+          </option>
+        ))
+      ) : (
+        inputOptions[inputName].map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))
+      )}
+    </select>
+ 
+  </div>
+))}
+
 
         {/* <div className="input-container relative">
           <Autocomplete

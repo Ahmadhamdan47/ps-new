@@ -10,7 +10,7 @@ const DrugRegistryFormAddons = () => {
   return (
     <div className="col-span-1 flex flex-col w-full h-full sm:col-span-1 text-black-text dark:text-white-text justify-center p-6">
       <h1 className="pb-2 pt-2 text-center text-[1.375rem] xs:text-xl sm:py-10 font-medium">
-        3 - Drug Registry Additional Info
+        5 - Drug Registry Additional Info
       </h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 md:gap-16 pt-6">
         <div className="input-container flex flex-col">

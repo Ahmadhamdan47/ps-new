@@ -14,6 +14,7 @@ import HomeGrayIcon from "./icons/HomeGrayIcon.jsx";
 import SearchGrayIcon from "./icons/SearchGrayIcon.jsx";
 import InspectionIcon from "./icons/InspectionIcon.jsx";
 import DistributionIcon from "./icons/DistributionIcon.jsx";
+import CheckmateIcon from "./icons/CheckmateIcon.jsx";
 import TrackRecordsIcon from "./icons/TrackRecordsIcon.jsx";
 import MedLebLogoMobileDrawer from "./icons/MedLebLogoMobileDrawer";
 import DashboardGrayIcon from "./icons/DashboardGrayIcon.jsx";
@@ -142,7 +143,8 @@ const sections = [
         to: "/distribution",
       },
 
-      { title: "Track Records", Icon: TrackRecordsIcon, to: "/tracking" },
+      { title: "Track Records", Icon: TrackRecordsIcon, to: "/track-records" },
+      { title: "Checkmate", Icon: CheckmateIcon, to: "/checkmate" },
     ],
   },
   // Add more sections as needed

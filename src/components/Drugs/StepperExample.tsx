@@ -18,14 +18,14 @@ import Box from '@mui/system/Box';
 
 const forms = [
   <DrugRegistryForm />,
-  <DrugRegistryFormAddons />,
-  <PricesComparison />,
+  <UnifiedDrugInformations />,
+  <DrugSubstanceInformationsForm />,
   <>
     <DrugDocuments />
     <DrugImages />
   </>,
-  <DrugSubstanceInformationsForm />,
-  <UnifiedDrugInformations />,
+  <DrugRegistryFormAddons />,
+  <PricesComparison />,
   <PricingInformations />,
   <ManufacturingAndImportingInfo />,
 ];
@@ -60,7 +60,7 @@ const StepperExample = () => {
       navigate('/');
     } else {
       // Proceed to the next step
-      nextStep();
+      setActiveStep(nextActiveStep => nextActiveStep +1);
     }
   };
 
@@ -68,6 +68,10 @@ const StepperExample = () => {
 
   const handleBack = () => {
     setActiveStep(prevActiveStep => prevActiveStep - 1);
+  };
+
+  const handleGoToStep = (index) => {
+    setActiveStep(index);
   };
 
   const handleReset = () => {
@@ -99,7 +103,7 @@ const StepperExample = () => {
           <Paper elevation={3} className={classes.stepperPaper}>
             <Stepper activeStep={activeStep} alternativeLabel>
               {forms.map((label, index) => (
-                <Step key={index}>
+                <Step key={index} onClick={() => handleGoToStep(index)}>
                   <StepLabel>{`Step ${index + 1}`}</StepLabel>
                 </Step>
               ))}

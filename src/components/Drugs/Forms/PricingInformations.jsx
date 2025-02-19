@@ -55,7 +55,7 @@ function PricingInformations(props) {
   return (
     <div className="col-span-1 flex flex-col w-full h-full sm:col-span-1 text-black-text dark:text-white-text justify-center p-6">
       <h1 className="pb-4 pt-2 text-center text-[1.375rem] xs:text-xl sm:py-10 font-medium">
-        6 - Pricing Informations
+        7 - Pricing Informations
       </h1>
       <div className=" flex h-full w-full flex-col">
         <form className="grid grid-cols-1 items-center gap-10 sm:grid-cols-2 sm:justify-items-center md:grid-cols-2 lg:grid-cols-3">

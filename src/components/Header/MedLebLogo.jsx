@@ -5,7 +5,7 @@ const MedLebLogo = () => {
     <svg
       width="130"
       height="auto"
-      viewBox="0 0 1041 419"
+      viewBox="0 0 1041 500"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >

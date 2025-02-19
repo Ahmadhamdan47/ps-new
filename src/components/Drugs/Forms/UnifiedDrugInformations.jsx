@@ -25,7 +25,7 @@ function UnifiedDrugInformations() {
   return (
     <div className="col-span-1 flex flex-col w-full h-full sm:col-span-1 text-black-text dark:text-white-text justify-center ">
       <h1 className="pb-4 pt-2 text-center text-[1.375rem] xs:text-xl sm:py-10 font-medium">
-        5- Unified Drug Informations
+        2- Unified Drug Informations
       </h1>
       <div className="table-container">
         <table className="whole-table-main-row w-full flex-col overflow-x-hidden ">

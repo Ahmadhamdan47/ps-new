@@ -127,6 +127,8 @@ import SearchGrayIcon from './icons/SearchGrayIcon.jsx';
 import InspectionIcon from './icons/InspectionIcon.jsx';
 import TrackRecordsIcon from './icons/TrackRecordsIcon.jsx';
 import DashboardGrayIcon from './icons/DashboardGrayIcon.jsx';
+import DistributionIcon from './icons/DistributionIcon.jsx';
+import CheckmateIcon from './icons/CheckmateIcon.jsx';
 
 function Sidebar() {
 	const [isMouseIn, setIsMouseIn] = useState(false);
@@ -217,9 +219,21 @@ function Sidebar() {
 					</SidebarItem>
 				</Link>
 
+				<Link to="/distribution" className="text-gray-600 hover:text-gray-800">
+					<SidebarItem text="Distribution" active={false}>
+						<DistributionIcon />
+					</SidebarItem>
+				</Link>
+
 				<Link to="/track-records" className="text-gray-600 hover:text-gray-800">
 					<SidebarItem text="Track Records" active={false}>
 						<TrackRecordsIcon />
+					</SidebarItem>
+				</Link>
+
+				<Link to="/checkmate" className="text-gray-600 hover:text-gray-800">
+					<SidebarItem text="Checkmate" active={false}>
+						<CheckmateIcon />
 					</SidebarItem>
 				</Link>
 
