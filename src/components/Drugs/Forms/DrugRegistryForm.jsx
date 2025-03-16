@@ -35,6 +35,7 @@ const DrugRegistryForm = () => {
     setAddModalOpen,
     setEditModalOpen,
     drugNames,
+  
   } = useStepperContext();
 
    const handleSubmit = async (e) => {
@@ -56,6 +57,8 @@ const DrugRegistryForm = () => {
   // ✅ State to store selected Manufacturer ID
   const [selectedManufacturerId, setSelectedManufacturerId] = useState("");
   const [selectedResponsiblePartyId, setSelectedResponsiblePartyId] = useState("");
+  const [selectedManufacturerCountry, setSelectedManufacturerCountry] = useState("");
+
 
   // ✅ Updated function to handle input changes
   const handleSelectChange = (e) => {
@@ -147,7 +150,7 @@ const DrugRegistryForm = () => {
       </div>
     </div>
     <select
-  name={inputName}
+  name={inputName}  
   value={
     inputName === "Manufacturer"
       ? formData.ManufacturerId || ""
@@ -178,7 +181,19 @@ const DrugRegistryForm = () => {
 
       </div>
     ))}
-
+     <div className="input-container relative">
+          <label htmlFor="ManufacturerCountry" className="labels text-md block text-left">
+            Manufacturer Country
+          </label>
+      <input
+        name="ManufacturerCountry"
+        value={selectedManufacturerCountry}
+        onChange={(e) => setSelectedManufacturerCountry(e.target.value)}
+        className="mt-1 w-full rounded-full text-lg border border-[#00a65100] dark:border-black-border bg-white-bg dark:bg-black-input px-4 py-2 font-normal shadow-md dark:shadow-black-shadow outline-none focus:border-green-pri focus:outline-none focus:ring-2 focus:ring-green-pri dark:focus:ring-2 dark:focus:ring-green-pri"
+        type="text"
+        placeholder="Country"
+      />
+ </div>
 
         {/* <div className="input-container relative">
           <Autocomplete
@@ -200,7 +215,6 @@ const DrugRegistryForm = () => {
             name="DrugName"
             value={formData.DrugName}
             onChange={(e) => handleInputChange(e)}
-            className="mt-1 w-full rounded-full text-lg border border-[#00a65100] dark:border-black-border bg-white-bg dark:bg-black-input px-4 py-2 font-normal shadow-md dark:shadow-black-shadow outline-none focus:border-green-pri focus:outline-none focus:ring-2 focus:ring-green-pri dark:focus:ring-2 dark:focus:ring-green-pri"
             type="text"
             autoComplete="off"
             placeholder="name"
