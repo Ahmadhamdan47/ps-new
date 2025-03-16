@@ -1,8 +1,6 @@
- 
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import React from 'react';
-
-// import { useManufacturingAndImportingInfo } from '../../../context/ManufacturingAndImportingInfoContext';
+import DatePicker from '../../../components/DatePicker';
 import { useStepperContext } from '../../Drugs/StepperContext';
 
 function ManufacturingAndImportingInfo(props) {
@@ -16,6 +14,17 @@ function ManufacturingAndImportingInfo(props) {
     handleAdd,
     handleCancel,
     isModalOpen,
+    datePickerOptions,
+    isAddModalOpen,
+    isEditModalOpen,
+    setAddModalOpen,
+    setEditModalOpen,
+    getTitle,
+    addSpacesToInputName,
+    handleEdit,
+    editInputValue,
+    EditModal,
+    inputOptions,
   } = useStepperContext();
 
   return (
@@ -23,7 +32,6 @@ function ManufacturingAndImportingInfo(props) {
       <h1 className="pb-4 pt-2 text-center text-[1.375rem] xs:text-xl sm:py-10 font-medium">
         8 - Manufacturing & Importing Informations
       </h1>
-      {/* <div className=" flex h-full w-full flex-col"> */}
       <form className="grid grid-cols-1 items-center gap-10 sm:grid-cols-2 sm:justify-items-center md:grid-cols-2 lg:grid-cols-3">
         <div className="input-container relative">
           <label htmlFor="responsibleParty" className="labels text-md block text-left">
@@ -102,9 +110,6 @@ function ManufacturingAndImportingInfo(props) {
           <input
             disabled
             value={formData.manufacturingCountry}
-            // onChange={(e) =>
-            //   handleInputChange("manufacturingCountry", e.target.value)
-            // }
             className="mt-1 w-full rounded-full border border-[#00a65100] dark:border-black-border bg-white-input dark:bg-black-shadow px-4 py-2 font-normal shadow-md dark:shadow-black-shadow outline-none focus:border-green-pri focus:outline-none focus:ring-2 focus:ring-green-pri dark:focus:ring-2 dark:focus:ring-green-pri"
             type="text"
             placeholder=""
@@ -138,6 +143,60 @@ function ManufacturingAndImportingInfo(props) {
             placeholder=""
           />
         </div>
+
+        {/* New input fields and checkboxes */}
+        <div className="input-container relative">
+          <label htmlFor="RegistrationNumber" className="labels text-md block text-left">
+            Registration Number
+          </label>
+          <input
+            name="RegistrationNumber"
+            value={formData.RegistrationNumber}
+            onChange={(e) => handleInputChange(e)}
+            className="mt-1 w-full rounded-full border border-[#00a65100] dark:border-black-border bg-white-bg dark:bg-black-input px-4 py-2 font-normal shadow-md dark:shadow-black-shadow outline-none focus:border-green-pri focus:outline-none focus:ring-2 focus:ring-green-pri dark:focus:ring-2 dark:focus:ring-green-pri"
+            type="text"
+            autoComplete="off"
+            placeholder="reg #"
+          />
+        </div>
+
+        <div className="input-container relative">
+          <label htmlFor="MoPHCode" className="labels text-md block text-left">
+            MOH Code
+          </label>
+          <input
+            name="MoPHCode"
+            value={formData.MoPHCode}
+            onChange={(e) => handleInputChange(e)}
+            className="mt-1 w-full rounded-full border border-[#00a65100] dark:border-black-border bg-white-bg dark:bg-black-input px-4 py-2 font-normal shadow-md dark:shadow-black-shadow outline-none focus:border-green-pri focus:outline-none focus:ring-2 focus:ring-green-pri dark:focus:ring-2 dark:focus:ring-green-pri"
+            type="text"
+            autoComplete="off"
+            placeholder="code"
+          />
+        </div>
+
+        <div className="relative">
+          <DatePicker
+            title="Registration Date"
+            id="RegDate"
+            name="RegDate"
+            value={formData.RegDate}
+            onChange={handleInputChange}
+            options={datePickerOptions}
+          />
+        </div>
+
+        <div className="relative">
+          <DatePicker
+            title="Review date"
+            id="LASTEffective_Date"
+            name="LASTEffective_Date"
+            value={formData.LASTEffective_Date}
+            onChange={handleInputChange}
+            options={datePickerOptions}
+          />
+        </div>
+
         <div className="checkboxes-container grid grid-col-span-1">
           <div className="row-1 flex justify-between">
             <div className="checkbox flex items-center justify-center">
@@ -246,12 +305,14 @@ function ManufacturingAndImportingInfo(props) {
                 onChange={(e) => handleCheckBoxChange('HospPricing', e.target.checked)}
               />
             </div>
-            <button
-              className="w-fit rounded-xl bg-transparent p-2 text-[#00a651] focus:border-[#00a651] focus:outline-none focus:ring-1"
-              onClick={openModal}
-            >
-              Add
-            </button>
+            <div className="input-container relative">
+              <button
+                className="w-fit rounded-xl bg-transparent p-2 text-[#00a651] focus:border-[#00a651] focus:outline-none focus:ring-1"
+                onClick={openModal}
+              >
+                Add
+              </button>
+            </div>
           </div>
         </div>
       </form>
@@ -262,6 +323,33 @@ function ManufacturingAndImportingInfo(props) {
           onAdd={handleAdd}
           onCancel={handleCancel}
         />
+      )}
+      {isAddModalOpen && (
+        <AddModal
+          closeModal={() => setAddModalOpen(false)}
+          title={getTitle(addSpacesToInputName(selectedInput))}
+          onAdd={handleAdd}
+          onCancel={handleCancel}
+        />
+      )}
+
+      {isEditModalOpen && (
+        <>
+          <EditModal
+            closeModal={() => {
+              console.log("Closing EditModal");
+              setEditModalOpen(false);
+            }}
+            title={getTitle(addSpacesToInputName(selectedInput))}
+            onEdit={handleEdit}
+            onCancel={() => {
+              console.log("Canceling EditModal");
+              handleCancel();
+            }}
+            initialValue={editInputValue}
+          />
+          {console.log("isEditModalOpen:", isEditModalOpen)}
+        </>
       )}
     </div>
   );

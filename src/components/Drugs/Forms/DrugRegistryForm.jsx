@@ -289,61 +289,7 @@ const DrugRegistryForm = () => {
           />
         </div>
 
-        <div className="input-container relative">
-          <label
-            htmlFor="RegistrationNumber"
-            className="labels text-md block text-left"
-          >
-            Registration Number
-          </label>
-          <input
-            name="RegistrationNumber"
-            value={formData.RegistrationNumber}
-            onChange={(e) => handleInputChange(e)}
-            className="mt-1 w-full rounded-full border border-[#00a65100] dark:border-black-border bg-white-bg dark:bg-black-input px-4 py-2 font-normal shadow-md dark:shadow-black-shadow outline-none focus:border-green-pri focus:outline-none focus:ring-2 focus:ring-green-pri dark:focus:ring-2 dark:focus:ring-green-pri"
-            type="text"
-            autoComplete="off"
-            placeholder="reg #"
-          />
-        </div>
-
-        {/* Text Input 2 */}
-        <div className="input-container relative">
-          <label htmlFor="MoPHCode" className="labels text-md block text-left">
-            MOH Code
-          </label>
-          <input
-            name="MoPHCode"
-            value={formData.MoPHCode}
-            onChange={(e) => handleInputChange(e)}
-            className="mt-1 w-full rounded-full border border-[#00a65100] dark:border-black-border bg-white-bg dark:bg-black-input px-4 py-2 font-normal shadow-md dark:shadow-black-shadow outline-none focus:border-green-pri focus:outline-none focus:ring-2 focus:ring-green-pri dark:focus:ring-2 dark:focus:ring-green-pri"
-            type="text"
-            autoComplete="off"
-            placeholder="code"
-          />
-        </div>
-
-        <div className="relative">
-          <DatePicker
-            title="Registration Date"
-            id="RegDate"
-            name="RegDate"
-            value={formData.RegDate}
-            onChange={handleInputChange}
-            options={datePickerOptions}
-          />
-        </div>
-
-        <div className="relative">
-          <DatePicker
-            title="Review date"
-            id="LASTEffective_Date"
-            name="LASTEffective_Date"
-            value={formData.LASTEffective_Date}
-            onChange={handleInputChange}
-            options={datePickerOptions}
-          />
-        </div>
+      
         {/* </div> */}
 
         {isAddModalOpen && (
