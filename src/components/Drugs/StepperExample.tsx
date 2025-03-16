@@ -18,15 +18,15 @@ import Box from '@mui/system/Box';
 
 const forms = [
   <DrugRegistryForm />,
-  <UnifiedDrugInformations />,
   <DrugSubstanceInformationsForm />,
-  <>
-    <DrugDocuments />
-    <DrugImages />
-  </>,
   <DrugRegistryFormAddons />,
-  <PricesComparison />,
+  <>
+  <DrugDocuments />
+  <DrugImages />
+</>,
+ <PricesComparison />,
   <PricingInformations />,
+  <UnifiedDrugInformations />,
   <ManufacturingAndImportingInfo />,
 ];
 
