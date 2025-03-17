@@ -5,9 +5,12 @@ import PropTypes from "prop-types";
 import { v4 as uuidv4 } from "uuid";
 import "flatpickr/dist/flatpickr.min.css";
 import React, { useState, useEffect, useContext, createContext } from "react";
+import axios from "axios";
 
 import AddModal from "../Modals/AddModal";
 import EditModal from "../Modals/EditModal";
+
+
 
 const dosageOptions = {
   "%": "%",
@@ -214,7 +217,52 @@ export const StepperProvider = ({ children, initialValue }) => {
     "PricingInformations",
     "ManufacturingAndImportingInfo",
   ];
-
+  useEffect(() => {
+    const fetchResponsibleParties = async () => {
+      try {
+        const response = await axios.get("/api/responsibleParty/");
+        const data = response.data;
+  
+        const responsiblePartyList = data.map((party) => ({
+          id: party.ResponsiblePartyId,
+          name: party.ResponsiblePartyName,
+          country: party.Country,
+        }));
+  
+        setResponsibleParty(responsiblePartyList);
+        setInputOptions((prevOptions) => ({
+          ...prevOptions,
+          ResponsibleParty: responsiblePartyList,
+        }));
+      } catch (error) {
+        console.error("Failed to fetch Responsible Parties:", error);
+      }
+    };
+  
+    const fetchManufacturers = async () => {
+      try {
+        const response = await axios.get("/api/manufacturer/");
+        const data = response.data;
+  
+        const manufacturerList = data.map((manufacturer) => ({
+          id: manufacturer.ManufacturerId,
+          name: manufacturer.ManufacturerName,
+          country: manufacturer.Country,
+        }));
+  
+        setManufacturers(manufacturerList);
+        setInputOptions((prevOptions) => ({
+          ...prevOptions,
+          Manufacturer: manufacturerList,
+        }));
+      } catch (error) {
+        console.error("Failed to fetch Manufacturers:", error);
+      }
+    };
+  
+    fetchResponsibleParties();
+    fetchManufacturers();
+  }, []);
   // Calculate step indicators
   const stepIndicators = forms.map((form, index) => (
     <div
@@ -399,24 +447,24 @@ const handleInputChange = (e) => {
   const { name, value } = e.target;
 
   if (name === "Manufacturer") {
-    const selectedManufacturer = inputOptions.Manufacturer.find((m) => m.id == value); // Ensure type match
+    const selectedManufacturer = inputOptions.Manufacturer.find((m) => m.id == value);
 
     setFormData((prevFormData) => ({
       ...prevFormData,
-      Manufacturer: selectedManufacturer ? selectedManufacturer.name : "", // Store Name for display
-      ManufacturerId: selectedManufacturer ? selectedManufacturer.id : "", // Store ID separately
+      Manufacturer: selectedManufacturer ? selectedManufacturer.name : "",
+      ManufacturerId: selectedManufacturer ? selectedManufacturer.id : "",
+      ManufacturerCountry: selectedManufacturer ? selectedManufacturer.country : "", // Auto-populate country
     }));
   } else if (name === "ResponsibleParty") {
-    const selectedResponsibleParty = inputOptions.ResponsibleParty.find((m) => m.id == value); // Ensure type match
+    const selectedResponsibleParty = inputOptions.ResponsibleParty.find((m) => m.id == value);
 
     setFormData((prevFormData) => ({
       ...prevFormData,
-      ResponsibleParty: selectedResponsibleParty ? selectedResponsibleParty.name : "", // Store Name for display
-      ResponsiblePartyId: selectedResponsibleParty ? selectedResponsibleParty.id : "", // Store ID separately
+      ResponsibleParty: selectedResponsibleParty ? selectedResponsibleParty.name : "",
+      ResponsiblePartyId: selectedResponsibleParty ? selectedResponsibleParty.id : "",
+      ResponsiblePartyCountry: selectedResponsibleParty ? selectedResponsibleParty.country : "", // Auto-populate country
     }));
-  }
-  
-  else {
+  } else {
     setFormData((prevFormData) => ({
       ...prevFormData,
       [name]: value,

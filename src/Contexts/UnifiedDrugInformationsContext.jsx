@@ -49,7 +49,9 @@ const dosageFormOptions = {
   'Drops, concentrated': 'Drops, concentrated',
   Elixir: 'Elixir',
   Spray: 'Spray',
-};
+  Injectable, suspension: 'Injectable, suspension',
+  
+  };
 
 const routeOptions = {
   Epidural: 'Epidural',
