@@ -14,7 +14,7 @@ export default defineConfig({
       },
     }),
   ],
-  server: {
+    server: {
     proxy: {
       "/api": {
         target: "https://apiv2.medleb.org",

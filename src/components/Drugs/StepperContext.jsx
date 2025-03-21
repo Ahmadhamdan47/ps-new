@@ -486,7 +486,7 @@ const [selectedManufacturingCountry, setSelectedManufacturingCountry] = useState
 useEffect(() => {
   const fetchManufacturers = async () => {
     try {
-      const response = await fetch("/api/manufacturer/");
+      const response = await get("/api/manufacturer/");
       const data = await response.json();
 
       console.log("API Response:", data); // Debugging step
@@ -515,7 +515,7 @@ useEffect(() => {
 
   const fetchResponsibleParties = async () => {
     try {
-      const response = await fetch("/api/responsibleParty/");
+      const response = await get("/api/responsibleParty/");
       const data = await response.json();
 
       console.log("API Response:", data); // Debugging step
@@ -629,7 +629,7 @@ const handleInputChange = (e) => {
   // Function to handle next step or submit
   const handleNextOrSubmit = () => {
       console.log("Final Form Data Before Submission:", JSON.stringify(formData, null, 2));
-      fetch("/api/drugs/add", {
+      get("/api/drugs/add", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
