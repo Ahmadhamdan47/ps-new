@@ -61,19 +61,23 @@ function UnifiedDrugInformations() {
           return;
         }
   
-        // Build hierarchical labels
+        // Ensure data has the required structure
+        if (data.some(item => !item.Code || !item.Name)) {
+          console.error("Invalid data structure:", data);
+          return;
+        }
+  
+        // Process data as usual
         const formattedData = data.map((item) => ({
           ...item,
           label: getAtcHierarchyLabel(data, item.Code),
         }));
   
-        // Create ATC code options
         const atcOpts = formattedData.map((item) => ({
           value: item.Code,
           label: item.label,
         }));
   
-        // Create unique ingredient options
         const ingredientSet = new Set();
         const tempIngredientToCodeMap = new Map();
         formattedData.forEach((item) => {
@@ -88,35 +92,35 @@ function UnifiedDrugInformations() {
           label: name,
         }));
   
-        // Create lookup maps
-        const codeMap = new Map(formattedData.map((item) => [item.Code, item.Name]));
-        const ingredientMap = tempIngredientToCodeMap;
-  
-        // Update state
         setAtcOptions(atcOpts);
         setIngredientOptions(ingredientOpts);
-        setAtcMap(codeMap);
-        setIngredientToCodeAtcMap(ingredientMap);
+        setAtcMap(new Map(formattedData.map((item) => [item.Code, item.Name])));
+        setIngredientToCodeAtcMap(tempIngredientToCodeMap);
       })
       .catch((error) => {
         console.error('Error fetching ATC data:', error);
       });
   }, []);
-  const getAtcHierarchyLabel = (data, code) => {
+    const getAtcHierarchyLabel = (data, code, visited = new Set()) => {
     if (!Array.isArray(data)) {
       console.error("Invalid data passed to getAtcHierarchyLabel:", data);
+      return code;
+    }
+  
+    if (visited.has(code)) {
+      console.error("Circular reference detected for code:", code);
       return code;
     }
   
     const item = data.find((i) => i.Code === code);
     if (!item || !item.ParentID) return item?.Name || code;
   
+    visited.add(code);
     const parent = data.find((i) => i.ATC_ID === item.ParentID);
     return parent
-      ? `${getAtcHierarchyLabel(data, parent.Code)} > ${item.Name}`
+      ? `${getAtcHierarchyLabel(data, parent.Code, visited)} > ${item.Name}`
       : item.Name || code;
   };
-
   // Construct the clean dosage for comparison
   const cleanDosage =
     formData.dosageValueN && formData.dosageUnitN ? `${formData.dosageValueN} ${formData.dosageUnitN}` : ""
@@ -353,21 +357,21 @@ function UnifiedDrugInformations() {
       ATC Code
     </label>
     <Select
-  name="atcCode"
-  value={atcOptions.find(opt => opt.value === formData.atcCode)}
-  onChange={(selected) => {
-    const code = selected?.value || '';
-    const ingredient = atcMap.get(code) || '';
-    handleInputChange({ target: { name: 'atcCode', value: code } });
-    handleInputChange({ target: { name: 'atcRelatedIngredients', value: ingredient } });
-  }}
-  options={atcOptions}
-  styles={customStyles}
-  isSearchable
-  placeholder="Search ATC Code..."
-  className="react-select-container"
-  classNamePrefix="react-select"
-/>
+      name="atcCode"
+      value={atcOptions.find(opt => opt.value === formData.atcCode) || null}
+      onChange={(selected) => {
+        const code = selected?.value || '';
+        const ingredient = atcMap.get(code) || '';
+        handleInputChange({ target: { name: 'atcCode', value: code } });
+        handleInputChange({ target: { name: 'atcRelatedIngredients', value: ingredient } });
+      }}
+      options={atcOptions}
+      styles={customStyles}
+      isSearchable
+      placeholder="Search ATC Code..."
+      className="react-select-container"
+      classNamePrefix="react-select"
+    />
   </div>
 
   {/* ATC Related Ingredients Dropdown */}
