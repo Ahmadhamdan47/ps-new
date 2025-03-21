@@ -196,3 +196,20 @@ input[type='number'] {
   appearance: none;
   margin: 5px;
 }
+.step-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #ccc;
+  margin: 0 5px;
+}
+
+.step-indicator.active {
+  background-color: #00a651;
+}
+
+.converted-price-usd {
+  color: #00a651;
+  font-weight: bold;
+}
+

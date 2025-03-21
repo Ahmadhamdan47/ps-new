@@ -57,50 +57,50 @@ function UnifiedDrugInformations() {
       .then((response) => response.json())
       .then((data) => {
         if (!Array.isArray(data)) {
-          console.error("Unexpected API response:", data)
-          return
+          console.error("Unexpected API response:", data);
+          return;
         }
-
+  
         // Ensure data has the required structure
         if (data.some((item) => !item.Code || !item.Name)) {
-          console.error("Invalid data structure:", data)
-          return
+          console.error("Invalid data structure:", data);
+          return;
         }
-
+  
         // Process data as usual
         const formattedData = data.map((item) => ({
           ...item,
           label: getAtcHierarchyLabel(data, item.Code),
-        }))
-
+        }));
+  
         const atcOpts = formattedData.map((item) => ({
           value: item.Code,
           label: item.label,
-        }))
-
-        const ingredientSet = new Set()
-        const tempIngredientToCodeMap = new Map()
+        }));
+  
+        const ingredientSet = new Set();
+        const tempIngredientToCodeMap = new Map();
         formattedData.forEach((item) => {
           if (!ingredientSet.has(item.Name)) {
-            ingredientSet.add(item.Name)
-            tempIngredientToCodeMap.set(item.Name, item.Code)
+            ingredientSet.add(item.Name);
+            tempIngredientToCodeMap.set(item.Name, item.Code);
           }
-        })
-
+        });
+  
         const ingredientOpts = Array.from(ingredientSet).map((name) => ({
           value: name,
           label: name,
-        }))
-
-        setAtcOptions(atcOpts)
-        setIngredientOptions(ingredientOpts)
-        setAtcMap(new Map(formattedData.map((item) => [item.Code, item.Name])))
-        setIngredientToCodeAtcMap(tempIngredientToCodeMap)
+        }));
+  
+        setAtcOptions(atcOpts);
+        setIngredientOptions(ingredientOpts);
+        setAtcMap(new Map(formattedData.map((item) => [item.Code, item.Name])));
+        setIngredientToCodeAtcMap(tempIngredientToCodeMap);
       })
       .catch((error) => {
-        console.error("Error fetching ATC data:", error)
-      })
-  }, [])
+        console.error("Error fetching ATC data:", error);
+      });
+  }, []);
   const getAtcHierarchyLabel = (data, code, visited = new Set()) => {
     if (!Array.isArray(data)) {
       console.error("Invalid data passed to getAtcHierarchyLabel:", data)
@@ -526,7 +526,7 @@ function UnifiedDrugInformations() {
                         <Select
                           id="doseForm"
                           name="doseForm"
-                          value={dosageFormOptions.find((opt) => opt.value === formData.doseForm)}
+                          value={{ value: formData.doseForm, label: formData.doseForm }}
                           onChange={(selected) =>
                             handleInputChange({ target: { name: "doseForm", value: selected?.value || "" } })
                           }
