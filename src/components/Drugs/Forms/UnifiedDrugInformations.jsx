@@ -3,7 +3,7 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import { useState, useEffect } from "react"
 import { Search } from "lucide-react"
-import Select from 'react-select';
+import Select from "react-select"
 
 import AddModal from "../../../components/Modals/AddModal"
 import DrugMatchingModal from "./drug-matching-modal"
@@ -12,22 +12,22 @@ import { useStepperContext } from "../../Drugs/StepperContext"
 const customStyles = {
   control: (provided) => ({
     ...provided,
-    borderRadius: '9999px',
-    borderColor: '#00a65100',
-    boxShadow: '0 1px 2px 0 rgba(0,0,0,0.05)',
-    '&:hover': {
-      borderColor: '#00a651'
-    }
+    borderRadius: "9999px",
+    borderColor: "#00a65100",
+    boxShadow: "0 1px 2px 0 rgba(0,0,0,0.05)",
+    "&:hover": {
+      borderColor: "#00a651",
+    },
   }),
   option: (provided) => ({
     ...provided,
-    color: '#1a202c',
-    backgroundColor: 'white',
-    '&:hover': {
-      backgroundColor: '#edf2f7'
-    }
-  })
-};
+    color: "#1a202c",
+    backgroundColor: "white",
+    "&:hover": {
+      backgroundColor: "#edf2f7",
+    },
+  }),
+}
 
 function UnifiedDrugInformations() {
   const {
@@ -47,83 +47,88 @@ function UnifiedDrugInformations() {
   } = useStepperContext()
 
   const [showMatchingDrugsModal, setShowMatchingDrugsModal] = useState(false)
-  const [atcOptions, setAtcOptions] = useState([]);
-  const [atcMap, setAtcMap] = useState(new Map());
-  const [ingredientToCodeAtcMap, setIngredientToCodeAtcMap] = useState(new Map());
-  const [ingredientOptions, setIngredientOptions] = useState([]);
+  const [atcOptions, setAtcOptions] = useState([])
+  const [atcMap, setAtcMap] = useState(new Map())
+  const [ingredientToCodeAtcMap, setIngredientToCodeAtcMap] = useState(new Map())
+  const [ingredientOptions, setIngredientOptions] = useState([])
 
   useEffect(() => {
-    fetch('/api/atc/all')
+    fetch("/api/atc/all")
       .then((response) => response.json())
       .then((data) => {
         if (!Array.isArray(data)) {
-          console.error("Unexpected API response:", data);
-          return;
+          console.error("Unexpected API response:", data)
+          return
         }
-  
+
         // Ensure data has the required structure
-        if (data.some(item => !item.Code || !item.Name)) {
-          console.error("Invalid data structure:", data);
-          return;
+        if (data.some((item) => !item.Code || !item.Name)) {
+          console.error("Invalid data structure:", data)
+          return
         }
-  
+
         // Process data as usual
         const formattedData = data.map((item) => ({
           ...item,
           label: getAtcHierarchyLabel(data, item.Code),
-        }));
-  
+        }))
+
         const atcOpts = formattedData.map((item) => ({
           value: item.Code,
           label: item.label,
-        }));
-  
-        const ingredientSet = new Set();
-        const tempIngredientToCodeMap = new Map();
+        }))
+
+        const ingredientSet = new Set()
+        const tempIngredientToCodeMap = new Map()
         formattedData.forEach((item) => {
           if (!ingredientSet.has(item.Name)) {
-            ingredientSet.add(item.Name);
-            tempIngredientToCodeMap.set(item.Name, item.Code);
+            ingredientSet.add(item.Name)
+            tempIngredientToCodeMap.set(item.Name, item.Code)
           }
-        });
-  
+        })
+
         const ingredientOpts = Array.from(ingredientSet).map((name) => ({
           value: name,
           label: name,
-        }));
-  
-        setAtcOptions(atcOpts);
-        setIngredientOptions(ingredientOpts);
-        setAtcMap(new Map(formattedData.map((item) => [item.Code, item.Name])));
-        setIngredientToCodeAtcMap(tempIngredientToCodeMap);
+        }))
+
+        setAtcOptions(atcOpts)
+        setIngredientOptions(ingredientOpts)
+        setAtcMap(new Map(formattedData.map((item) => [item.Code, item.Name])))
+        setIngredientToCodeAtcMap(tempIngredientToCodeMap)
       })
       .catch((error) => {
-        console.error('Error fetching ATC data:', error);
-      });
-  }, []);
-    const getAtcHierarchyLabel = (data, code, visited = new Set()) => {
+        console.error("Error fetching ATC data:", error)
+      })
+  }, [])
+  const getAtcHierarchyLabel = (data, code, visited = new Set()) => {
     if (!Array.isArray(data)) {
-      console.error("Invalid data passed to getAtcHierarchyLabel:", data);
-      return code;
+      console.error("Invalid data passed to getAtcHierarchyLabel:", data)
+      return code
     }
-  
+
     if (visited.has(code)) {
-      console.error("Circular reference detected for code:", code);
-      return code;
+      console.error("Circular reference detected for code:", code)
+      return code
     }
-  
-    const item = data.find((i) => i.Code === code);
-    if (!item || !item.ParentID) return item?.Name || code;
-  
-    visited.add(code);
-    const parent = data.find((i) => i.ATC_ID === item.ParentID);
-    return parent
-      ? `${getAtcHierarchyLabel(data, parent.Code, visited)} > ${item.Name}`
-      : item.Name || code;
-  };
+
+    const item = data.find((i) => i.Code === code)
+    if (!item || !item.ParentID) return item?.Name || code
+
+    visited.add(code)
+    const parent = data.find((i) => i.ATC_ID === item.ParentID)
+    return parent ? `${getAtcHierarchyLabel(data, parent.Code, visited)} > ${item.Name}` : item.Name || code
+  }
   // Construct the clean dosage for comparison
   const cleanDosage =
     formData.dosageValueN && formData.dosageUnitN ? `${formData.dosageValueN} ${formData.dosageUnitN}` : ""
+
+  // Add the handleSearchClick function to your component
+  const handleSearchClick = () => {
+    setShowMatchingDrugsModal(true)
+  }
+
+  // Make sure this function is defined before it's used in the onClick handler
 
   return (
     <div className="col-span-1 flex flex-col w-full h-full sm:col-span-1 text-black-text dark:text-white-text justify-center ">
@@ -351,52 +356,52 @@ function UnifiedDrugInformations() {
                 </div>
 
                 <div className="mt-4 grid gap-6 lg:grid-cols-2">
-  {/* ATC Code Dropdown */}
-  <div className="input-container mt-4 w-full">
-    <label htmlFor="atcCode" className="labels text-md block text-left">
-      ATC Code
-    </label>
-    <Select
-      name="atcCode"
-      value={atcOptions.find(opt => opt.value === formData.atcCode) || null}
-      onChange={(selected) => {
-        const code = selected?.value || '';
-        const ingredient = atcMap.get(code) || '';
-        handleInputChange({ target: { name: 'atcCode', value: code } });
-        handleInputChange({ target: { name: 'atcRelatedIngredients', value: ingredient } });
-      }}
-      options={atcOptions}
-      styles={customStyles}
-      isSearchable
-      placeholder="Search ATC Code..."
-      className="react-select-container"
-      classNamePrefix="react-select"
-    />
-  </div>
+                  {/* ATC Code Dropdown */}
+                  <div className="input-container mt-4 w-full">
+                    <label htmlFor="atcCode" className="labels text-md block text-left">
+                      ATC Code
+                    </label>
+                    <Select
+                      name="atcCode"
+                      value={atcOptions.find((opt) => opt.value === formData.atcCode) || null}
+                      onChange={(selected) => {
+                        const code = selected?.value || ""
+                        const ingredient = atcMap.get(code) || ""
+                        handleInputChange({ target: { name: "atcCode", value: code } })
+                        handleInputChange({ target: { name: "atcRelatedIngredients", value: ingredient } })
+                      }}
+                      options={atcOptions}
+                      styles={customStyles}
+                      isSearchable
+                      placeholder="Search ATC Code..."
+                      className="react-select-container"
+                      classNamePrefix="react-select"
+                    />
+                  </div>
 
-  {/* ATC Related Ingredients Dropdown */}
-  <div className="input-container mt-4 w-full">
-    <label htmlFor="atcRelatedIngredients" className="labels text-md block text-left">
-      ATC related ingredients
-    </label>
-    <Select
-      name="atcRelatedIngredients"
-      value={ingredientOptions.find(opt => opt.value === formData.atcRelatedIngredients)}
-      onChange={(selected) => {
-        const ingredient = selected?.value || '';
-        const code = ingredientToCodeAtcMap.get(ingredient) || '';
-        handleInputChange({ target: { name: 'atcRelatedIngredients', value: ingredient } });
-        handleInputChange({ target: { name: 'atcCode', value: code } });
-      }}
-      options={ingredientOptions}
-      styles={customStyles}
-      isSearchable
-      placeholder="Search Ingredient..."
-      className="react-select-container"
-      classNamePrefix="react-select"
-    />
-  </div>
-</div>
+                  {/* ATC Related Ingredients Dropdown */}
+                  <div className="input-container mt-4 w-full">
+                    <label htmlFor="atcRelatedIngredients" className="labels text-md block text-left">
+                      ATC related ingredients
+                    </label>
+                    <Select
+                      name="atcRelatedIngredients"
+                      value={ingredientOptions.find((opt) => opt.value === formData.atcRelatedIngredients)}
+                      onChange={(selected) => {
+                        const ingredient = selected?.value || ""
+                        const code = ingredientToCodeAtcMap.get(ingredient) || ""
+                        handleInputChange({ target: { name: "atcRelatedIngredients", value: ingredient } })
+                        handleInputChange({ target: { name: "atcCode", value: code } })
+                      }}
+                      options={ingredientOptions}
+                      styles={customStyles}
+                      isSearchable
+                      placeholder="Search Ingredient..."
+                      className="react-select-container"
+                      classNamePrefix="react-select"
+                    />
+                  </div>
+                </div>
                 <div className="py-4 px-2 border rounded-xl border-[#3a3c3d60] mt-4">
                   <div className="mt-4 grid w-full grid-cols-1 gap-6">
                     <div className="input-container mt-2 w-full">
@@ -503,49 +508,51 @@ function UnifiedDrugInformations() {
                               id="IsScore"
                               className="ml-2 mr-2 rounded"
                               checked={formData.IsScore}
-                                // onChange={(e) => handleInputChange(e)}
-                                onChange={(e) => handleCheckBoxChange("IsScore", e.target.checked)}
-                              />
-                              </div>
-                              <button
-                              onClick={openModal}
-                              type="button"
-                              className="w-fit rounded-xl bg-transparent p-2 text-[#00a651]  focus:border-[#00a651] focus:outline-none focus:ring-1"
-                              >
-                              Add
-                              </button>
-                            </div>
-                            </div>
-
-                            <div className="relative">
-                            <Select
-                              id="doseForm"
-                              name="doseForm"
-                              value={dosageFormOptions.find(opt => opt.value === formData.doseForm)}
-                              onChange={(selected) => handleInputChange({ target: { name: 'doseForm', value: selected?.value || '' } })}
-                              options={Object.keys(dosageFormOptions).map((doseForm) => ({
-                              value: doseForm,
-                              label: doseForm,
-                              }))}
-                              styles={customStyles}
-                              isSearchable
-                              placeholder="Select a dose form..."
-                              className="react-select-container"
-                              classNamePrefix="react-select"
+                              // onChange={(e) => handleInputChange(e)}
+                              onChange={(e) => handleCheckBoxChange("IsScore", e.target.checked)}
                             />
-                            </div>
                           </div>
-                          </div>
+                          <button
+                            onClick={openModal}
+                            type="button"
+                            className="w-fit rounded-xl bg-transparent p-2 text-[#00a651]  focus:border-[#00a651] focus:outline-none focus:ring-1"
+                          >
+                            Add
+                          </button>
                         </div>
+                      </div>
 
-                        <div className="mt-4 grid w-full grid-cols-1 gap-6 pb-4 ">
-                          <div className="input-container w-full px-2">
-                          <div className="input-child-container flex justify-between items-center">
-                            <label htmlFor="route" className="labels text-md mt-2 block text-left">
-                            Route
-                            </label>
+                      <div className="relative">
+                        <Select
+                          id="doseForm"
+                          name="doseForm"
+                          value={dosageFormOptions.find((opt) => opt.value === formData.doseForm)}
+                          onChange={(selected) =>
+                            handleInputChange({ target: { name: "doseForm", value: selected?.value || "" } })
+                          }
+                          options={Object.keys(dosageFormOptions).map((doseForm) => ({
+                            value: doseForm,
+                            label: doseForm,
+                          }))}
+                          styles={customStyles}
+                          isSearchable
+                          placeholder="Select a dose form..."
+                          className="react-select-container"
+                          classNamePrefix="react-select"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-                            <div className="checkbox flex flex-col md:flex-row items-end md:items-center ">
+                <div className="mt-4 grid w-full grid-cols-1 gap-6 pb-4 ">
+                  <div className="input-container w-full px-2">
+                    <div className="input-child-container flex justify-between items-center">
+                      <label htmlFor="route" className="labels text-md mt-2 block text-left">
+                        Route
+                      </label>
+
+                      <div className="checkbox flex flex-col md:flex-row items-end md:items-center ">
                         <div className="flex justify-between items-center">
                           <label htmlFor="IsParentaral" className="text-md">
                             Parentaral
