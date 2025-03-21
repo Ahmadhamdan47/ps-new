@@ -37,7 +37,7 @@ const DrugMatchingModal = ({
     const fetchMatchingDrugs = async () => {
       try {
         setLoading(true)
-        const response = await get("/api/drugs/all")
+        const response = await fetch("/api/drugs/all")
         if (!response.ok) {
           throw new Error("Failed to fetch drugs data")
         }
