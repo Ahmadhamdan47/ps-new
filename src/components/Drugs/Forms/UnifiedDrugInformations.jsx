@@ -57,67 +57,92 @@ function UnifiedDrugInformations() {
       .then((response) => response.json())
       .then((data) => {
         if (!Array.isArray(data)) {
-          console.error("Unexpected API response:", data);
-          return;
+          console.error("Invalid API response format:", data)
+          return
         }
-  
-        // Ensure data has the required structure
-        if (data.some((item) => !item.Code || !item.Name)) {
-          console.error("Invalid data structure:", data);
-          return;
-        }
-  
-        // Process data as usual
-        const formattedData = data.map((item) => ({
-          ...item,
-          label: getAtcHierarchyLabel(data, item.Code),
-        }));
-  
-        const atcOpts = formattedData.map((item) => ({
-          value: item.Code,
-          label: item.label,
-        }));
-  
-        const ingredientSet = new Set();
-        const tempIngredientToCodeMap = new Map();
-        formattedData.forEach((item) => {
-          if (!ingredientSet.has(item.Name)) {
-            ingredientSet.add(item.Name);
-            tempIngredientToCodeMap.set(item.Name, item.Code);
+
+        // Create a map for faster lookups
+        const atcItemsMap = new Map()
+        const ingredientToCodeMap = new Map()
+        const ingredientSet = new Set()
+
+        // First pass: populate the maps
+        data.forEach((item) => {
+          if (item && item.Code && item.Name) {
+            atcItemsMap.set(item.Code, item)
+
+            if (!ingredientSet.has(item.Name)) {
+              ingredientSet.add(item.Name)
+              ingredientToCodeMap.set(item.Name, item.Code)
+            }
           }
-        });
-  
-        const ingredientOpts = Array.from(ingredientSet).map((name) => ({
-          value: name,
-          label: name,
-        }));
-  
-        setAtcOptions(atcOpts);
-        setIngredientOptions(ingredientOpts);
-        setAtcMap(new Map(formattedData.map((item) => [item.Code, item.Name])));
-        setIngredientToCodeAtcMap(tempIngredientToCodeMap);
+        })
+
+        // Second pass: create formatted options with hierarchy
+        const atcOpts = []
+        const ingredientOpts = []
+
+        data.forEach((item) => {
+          if (item && item.Code && item.Name) {
+            // Create hierarchical label
+            let label = item.Name
+            const currentCode = item.Code
+            let parentCode = ""
+
+            // Find parent codes by length (ATC codes have hierarchical structure)
+            if (currentCode.length > 1) {
+              parentCode = currentCode.substring(0, currentCode.length - (currentCode.length > 3 ? 2 : 1))
+              const parent = atcItemsMap.get(parentCode)
+              if (parent) {
+                label = `${parent.Name} > ${label}`
+              }
+            }
+
+            atcOpts.push({
+              value: item.Code,
+              label: `${item.Code}: ${label}`,
+            })
+          }
+        })
+
+        // Create ingredient options
+        ingredientSet.forEach((name) => {
+          ingredientOpts.push({
+            value: name,
+            label: name,
+          })
+        })
+
+        setAtcOptions(atcOpts)
+        setIngredientOptions(ingredientOpts)
+        setAtcMap(new Map(data.filter((item) => item && item.Code && item.Name).map((item) => [item.Code, item.Name])))
+        setIngredientToCodeAtcMap(ingredientToCodeMap)
       })
       .catch((error) => {
-        console.error("Error fetching ATC data:", error);
-      });
-  }, []);
-  const getAtcHierarchyLabel = (data, code, visited = new Set()) => {
-    if (!Array.isArray(data)) {
-      console.error("Invalid data passed to getAtcHierarchyLabel:", data)
-      return code
+        console.error("Error fetching ATC data:", error)
+      })
+  }, [])
+
+  const getAtcHierarchyLabel = (data, code) => {
+    if (!code) return ""
+
+    const visited = new Set()
+    const buildLabel = (currentCode) => {
+      if (visited.has(currentCode)) return currentCode // Prevent circular references
+
+      visited.add(currentCode)
+      const item = data.find((i) => i.Code === currentCode)
+      if (!item) return currentCode
+
+      if (!item.ParentID) return item.Name
+
+      const parent = data.find((i) => i.ATC_ID === item.ParentID)
+      if (!parent) return item.Name
+
+      return `${buildLabel(parent.Code)} > ${item.Name}`
     }
 
-    if (visited.has(code)) {
-      console.error("Circular reference detected for code:", code)
-      return code
-    }
-
-    const item = data.find((i) => i.Code === code)
-    if (!item || !item.ParentID) return item?.Name || code
-
-    visited.add(code)
-    const parent = data.find((i) => i.ATC_ID === item.ParentID)
-    return parent ? `${getAtcHierarchyLabel(data, parent.Code, visited)} > ${item.Name}` : item.Name || code
+    return buildLabel(code)
   }
   // Construct the clean dosage for comparison
   const cleanDosage =
