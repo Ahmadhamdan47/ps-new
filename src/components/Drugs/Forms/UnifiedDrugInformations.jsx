@@ -54,37 +54,42 @@ function UnifiedDrugInformations() {
 
   useEffect(() => {
     fetch('/api/atc/all')
-      .then(response => response.json())
-      .then(data => {
+      .then((response) => response.json())
+      .then((data) => {
+        if (!Array.isArray(data)) {
+          console.error("Unexpected API response:", data);
+          return;
+        }
+  
         // Build hierarchical labels
-        const formattedData = Array.isArray(data) ? data.map(item => ({
+        const formattedData = data.map((item) => ({
           ...item,
-          label: getAtcHierarchyLabel(data, item.Code)
-        })) : [];
+          label: getAtcHierarchyLabel(data, item.Code),
+        }));
   
         // Create ATC code options
-        const atcOpts = formattedData.map(item => ({
+        const atcOpts = formattedData.map((item) => ({
           value: item.Code,
-          label: item.label // Use the hierarchical label here
+          label: item.label,
         }));
   
         // Create unique ingredient options
         const ingredientSet = new Set();
         const tempIngredientToCodeMap = new Map();
-        formattedData.forEach(item => {
+        formattedData.forEach((item) => {
           if (!ingredientSet.has(item.Name)) {
             ingredientSet.add(item.Name);
             tempIngredientToCodeMap.set(item.Name, item.Code);
           }
         });
   
-        const ingredientOpts = Array.from(ingredientSet).map(name => ({
+        const ingredientOpts = Array.from(ingredientSet).map((name) => ({
           value: name,
-          label: name
+          label: name,
         }));
   
         // Create lookup maps
-        const codeMap = new Map(formattedData.map(item => [item.Code, item.Name]));
+        const codeMap = new Map(formattedData.map((item) => [item.Code, item.Name]));
         const ingredientMap = tempIngredientToCodeMap;
   
         // Update state
@@ -93,21 +98,24 @@ function UnifiedDrugInformations() {
         setAtcMap(codeMap);
         setIngredientToCodeAtcMap(ingredientMap);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('Error fetching ATC data:', error);
       });
   }, []);
-  
   const getAtcHierarchyLabel = (data, code) => {
-    const item = data.find(i => i.Code === code);
-    if (!item || !item.ParentID) return code;
-    const parent = data.find(i => i.ATC_ID === item.ParentID);
-    return parent ? `${getAtcHierarchyLabel(data, parent.Code)} > ${code}` : code;
+    if (!Array.isArray(data)) {
+      console.error("Invalid data passed to getAtcHierarchyLabel:", data);
+      return code;
+    }
+  
+    const item = data.find((i) => i.Code === code);
+    if (!item || !item.ParentID) return item?.Name || code;
+  
+    const parent = data.find((i) => i.ATC_ID === item.ParentID);
+    return parent
+      ? `${getAtcHierarchyLabel(data, parent.Code)} > ${item.Name}`
+      : item.Name || code;
   };
-  // Function to handle the search button click
-  const handleSearchClick = () => {
-    setShowMatchingDrugsModal(true)
-  }
 
   // Construct the clean dosage for comparison
   const cleanDosage =
